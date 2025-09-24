@@ -1,5 +1,5 @@
 // Global variables
-let targetDate = new Date('October 3, 2025 00:00:00').getTime();
+let targetDate = new Date('September 25, 2025 05:00:00').getTime();
 let countdownTimer;
 
 // Initialize the app

@@ -1,0 +1,22 @@
+{
+  "title": "At Our Pace",
+  "nextMeetISO": "2025-10-04T05:00:00-04:00",
+  "mode": "everyday", 
+  "pace": "yellow",
+  "vows": [
+    "No therapist mode in romance.",
+    "Ask before deep dives.",
+    "Repair > win the argument.",
+    "Space is allowed.",
+    "No weaponizing imperfections."
+  ],
+  "memories": [
+    {"date":"2023-07-10","title":"Stampede RPS","img":"assets/stampede.jpg","line":"Chaos met chance."},
+    {"date":"2024-05-20","title":"Rebuild Starts","img":"assets/rebuild.jpg","line":"We chose to try again."},
+    {"date":"2024-07-12","title":"TD Library","img":"assets/tfdl.jpg","line":"Crossing paths on purpose?"}
+  ],
+  "songs": [
+    {"date":"2025-09-22","from":"A","title":"Song Title A","url":"https://open.spotify.com/track/...","note":"why it fits"},
+    {"date":"2025-09-22","from":"T","title":"Song Title T","url":"https://open.spotify.com/track/...","note":"why it fits"}
+  ]
+}
