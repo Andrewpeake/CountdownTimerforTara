@@ -140,3 +140,131 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Slideshow functionality
+let slideIndex = 0;
+let slideInterval;
+
+// Initialize slideshow
+function initSlideshow() {
+    detectVideoSlides();
+    showSlide(0);
+    startAutoPlay();
+}
+
+// Detect which slides have videos
+function detectVideoSlides() {
+    const slides = document.querySelectorAll('.slide');
+    slides.forEach((slide, index) => {
+        const video = slide.querySelector('.slide-video');
+        if (video && video.src && video.src !== '') {
+            slide.classList.add('has-video');
+        }
+    });
+}
+
+// Show specific slide
+function showSlide(n) {
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot');
+    
+    if (n >= slides.length) slideIndex = 0;
+    if (n < 0) slideIndex = slides.length - 1;
+    
+    // Pause all videos and hide all slides
+    slides.forEach((slide, index) => {
+        slide.classList.remove('active');
+        const video = slide.querySelector('.slide-video');
+        if (video) {
+            video.pause();
+            video.currentTime = 0;
+        }
+    });
+    dots.forEach(dot => dot.classList.remove('active'));
+    
+    // Show current slide
+    slides[slideIndex].classList.add('active');
+    dots[slideIndex].classList.add('active');
+    
+    // Check if current slide has a video and play it
+    const currentSlide = slides[slideIndex];
+    const currentVideo = currentSlide.querySelector('.slide-video');
+    const currentImage = currentSlide.querySelector('.slide-image');
+    
+    if (currentVideo && currentVideo.src) {
+        // Hide image, show video
+        if (currentImage) currentImage.style.display = 'none';
+        currentVideo.style.display = 'block';
+        currentVideo.play().catch(e => {
+            console.log('Video autoplay prevented:', e);
+            // If autoplay fails, show image instead
+            if (currentImage) currentImage.style.display = 'block';
+            currentVideo.style.display = 'none';
+        });
+    } else {
+        // Show image, hide video
+        if (currentImage) currentImage.style.display = 'block';
+        if (currentVideo) currentVideo.style.display = 'none';
+    }
+}
+
+// Change slide by direction
+function changeSlide(direction) {
+    slideIndex += direction;
+    showSlide(slideIndex);
+    resetAutoPlay();
+}
+
+// Go to specific slide
+function currentSlide(n) {
+    slideIndex = n - 1;
+    showSlide(slideIndex);
+    resetAutoPlay();
+}
+
+// Auto-play functionality
+function startAutoPlay() {
+    slideInterval = setInterval(() => {
+        slideIndex++;
+        showSlide(slideIndex);
+    }, 5000); // Change slide every 5 seconds
+}
+
+// Check if slide has video content
+function hasVideo(slideIndex) {
+    const slides = document.querySelectorAll('.slide');
+    const slide = slides[slideIndex];
+    if (!slide) return false;
+    
+    const video = slide.querySelector('.slide-video');
+    return video && video.src && video.src !== '';
+}
+
+// Get appropriate timing for slide (longer for videos)
+function getSlideTiming(slideIndex) {
+    return hasVideo(slideIndex) ? 8000 : 5000; // 8 seconds for videos, 5 for images
+}
+
+function resetAutoPlay() {
+    clearInterval(slideInterval);
+    startAutoPlay();
+}
+
+// Pause auto-play on hover
+document.addEventListener('DOMContentLoaded', function() {
+    const slideshowContainer = document.querySelector('.slideshow-container');
+    if (slideshowContainer) {
+        slideshowContainer.addEventListener('mouseenter', () => {
+            clearInterval(slideInterval);
+        });
+        
+        slideshowContainer.addEventListener('mouseleave', () => {
+            startAutoPlay();
+        });
+    }
+});
+
+// Initialize slideshow when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    initSlideshow();
+});
