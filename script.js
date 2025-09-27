@@ -168,6 +168,8 @@ function showSlide(n) {
     const slides = document.querySelectorAll('.slide');
     const dots = document.querySelectorAll('.dot');
     
+    console.log('showSlide called with n:', n, 'slideIndex:', slideIndex, 'slides.length:', slides.length);
+    
     if (n >= slides.length) slideIndex = 0;
     if (n < 0) slideIndex = slides.length - 1;
     
@@ -186,12 +188,17 @@ function showSlide(n) {
     slides[slideIndex].classList.add('active');
     dots[slideIndex].classList.add('active');
     
+    console.log('Active slide:', slideIndex, 'Element:', slides[slideIndex]);
+    
     // Check if current slide has a video and play it
     const currentSlide = slides[slideIndex];
     const currentVideo = currentSlide.querySelector('.slide-video');
     const currentImage = currentSlide.querySelector('.slide-image');
     
+    console.log('Current slide elements:', {currentVideo, currentImage});
+    
     if (currentVideo && currentVideo.src) {
+        console.log('Video detected, hiding image');
         // Hide image, show video
         if (currentImage) currentImage.style.display = 'none';
         currentVideo.style.display = 'block';
@@ -202,6 +209,7 @@ function showSlide(n) {
             currentVideo.style.display = 'none';
         });
     } else {
+        console.log('No video, showing image');
         // Show image, hide video
         if (currentImage) currentImage.style.display = 'block';
         if (currentVideo) currentVideo.style.display = 'none';
@@ -266,5 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Initialize slideshow when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing slideshow...');
     initSlideshow();
+    console.log('Slideshow initialized');
 });
