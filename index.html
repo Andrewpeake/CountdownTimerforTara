@@ -1,147 +1,681 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Countdown to Our Reunion 💕</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Countdown</title>
+  <meta name="description" content="Clean, minimal, no‑cringe countdown." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Theme: "Calgary Night" */
+      --bg: #0b0d12;
+      --panel: #111521;
+      --card: #0f1420;
+      --text: #e8ecf1;
+      --muted: #b7c0cc;
+      --accent: #6ae3ff; /* ice blue */
+      --accent-2: #ff6a95; /* neon rose */
+      --ring-bg: #1a2234;
+      --ok: #7dffb3;
+      --warn: #ffd36a;
+      --danger: #ff6a6a;
+      --shadow: 0 10px 30px rgba(0,0,0,.45);
+      --radius-2xl: 24px;
+    }
+
+    /* Optional alt themes: toggle by adding data-theme to <html> */
+    html[data-theme="LondonFog"]{
+      --bg:#0c0c0e; --panel:#121215; --card:#15161a; --text:#f1f1f2; --muted:#b9bbc2; --accent:#c7fdff; --accent-2:#8ea2ff; --ring-bg:#20222a;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; background: radial-gradient(1200px 800px at 10% 10%, #0f1320 0%, var(--bg) 40%),
+      radial-gradient(1200px 800px at 90% 90%, #142032 0%, var(--bg) 40%);
+      color: var(--text); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      display: grid; place-items: center; padding: 24px;
+    }
+
+    .shell { width: min(1100px, 100%); }
+
+    .nav {
+      display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px;
+    }
+    .brand { display:flex; align-items:center; gap:10px; font-weight: 700; letter-spacing: .2px; }
+    .brand-badge { width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(180deg, var(--accent), var(--accent-2)); box-shadow: 0 0 22px var(--accent); }
+    .nav .controls { display:flex; gap:10px; align-items:center; }
+
+    button, .chip, select, input[type="date"], input[type="time"], input[type="text"] {
+      background: var(--panel); color: var(--text); border: 1px solid #1c2230; border-radius: 12px; padding: 10px 12px; font: inherit;
+      outline: none; transition: .2s border-color, .2s transform, .2s background;
+    }
+    button:hover { transform: translateY(-1px); }
+    button.primary { background: linear-gradient(180deg, var(--accent), var(--accent-2)); color:#0b0d12; border: none; font-weight:700; }
+    button.ghost { background: transparent; border-color:#2a3245; }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+      border: 1px solid #1c2230; border-radius: var(--radius-2xl); box-shadow: var(--shadow); padding: 24px;
+    }
+
+    .layout { display: grid; grid-template-columns: 1.2fr .8fr; gap: 18px; }
+    @media (max-width: 920px){ .layout{ grid-template-columns: 1fr; } }
+
+    .timer-card { position: relative; overflow: hidden; }
+    .timer-card::after { content:""; position:absolute; inset: -60% -40%; background: radial-gradient(50% 50% at 50% 50%, rgba(106,227,255,.06), transparent 70%); pointer-events:none; }
+    /* Hero image */
+    .hero{ position: relative; aspect-ratio: 16/7; border-radius: 18px; overflow:hidden; border:1px solid #1b2335; background: linear-gradient(180deg, #121827, #0c1220); }
+    .hero img{ width:100%; height:100%; object-fit: cover; display:block; opacity: .98; }
+    .hero .hero-empty{ position:absolute; inset:0; display:grid; place-items:center; color:var(--muted); font-size:13px; letter-spacing:.2px; }
+    .hero.drag{ outline: 2px dashed #2b3650; outline-offset: -8px; }
+    .hero-actions{ position:absolute; right:10px; bottom:10px; display:flex; gap:8px; }
+    .hero-actions button{ backdrop-filter: blur(6px); background: rgba(17,21,33,.7); }
+    .timer-card::after { content:""; position:absolute; inset: -60% -40%; background: radial-gradient(50% 50% at 50% 50%, rgba(106,227,255,.06), transparent 70%); pointer-events:none; }
+
+    .headline { display:flex; align-items:center; justify-content:space-between; gap: 12px; margin-bottom: 16px; }
+    .headline h1 { margin: 0; font-size: clamp(20px, 3.8vw, 32px); font-weight: 800; letter-spacing: .3px; }
+    .subtle { color: var(--muted); font-weight: 500; }
+
+    .digits { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 14px; margin-top: 10px; }
+    .unit { background: var(--card); border: 1px solid #1b2335; border-radius: 18px; padding: 22px; text-align:center; }
+    .num { font-size: clamp(28px, 8vw, 76px); font-weight: 900; line-height: .9; letter-spacing: -1px; font-family: 'Space Mono', monospace; }
+    .label { margin-top: 6px; font-size: 12px; color: var(--muted); letter-spacing: .6px; text-transform: uppercase; }
+
+    .progress-wrap { margin-top: 18px; }
+    .progress {
+      width: 100%; height: 12px; background: var(--ring-bg); border-radius: 999px; overflow: hidden; border: 1px solid #1c2230; position:relative;
+    }
+    .progress > span { display:block; height:100%; width:0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); box-shadow: 0 0 20px rgba(106,227,255,.5) inset; transition: width .6s ease; }
+    .progress-meta { display:flex; justify-content:space-between; color: var(--muted); font-size: 12px; margin-top: 8px; }
+
+    .side-card h2 { margin: 0 0 14px 0; font-size: 16px; letter-spacing:.2px; }
+    .grid { display:grid; gap: 10px; }
+
+    .row { display:flex; gap: 8px; }
+    .row > * { flex: 1; }
+
+    .event-pill { display:flex; align-items:center; justify-content:space-between; background: var(--card); border:1px solid #1b2335; padding: 12px 14px; border-radius: 14px; }
+    .event-pill .name { font-weight: 600; }
+    .event-pill .date { color: var(--muted); font-size: 12px; }
+    .event-pill .actions { display:flex; gap:8px; }
+
+    .empty { color:var(--muted); font-style: italic; }
+
+    .footer { margin-top: 16px; color: var(--muted); font-size: 12px; text-align:center; }
+
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; padding: 2px 6px; border-radius: 6px; border: 1px solid #283043; background: #121826; color: #cbd5e1; }
+
+      /* Extras */
+    .note { font-size:12px; color:var(--muted); }
+    .mini { font-size:11px; color:var(--muted); }
+    .digits.pulse .num{ animation: pulse 1s ease-in-out infinite; }
+    @keyframes pulse{ 0%{transform:scale(1)} 50%{transform:scale(1.02)} 100%{transform:scale(1)} }
+
+    .spotify { margin-top: 12px; }
+    .spotify iframe{ width:100%; height:152px; border:0; border-radius:12px; }
+
+    .controls-grid{ display:grid; gap:10px; }
+    .two{ display:grid; grid-template-columns: 1fr 1fr; gap:8px; }
+
+    .toast{ margin-top:8px; font-size:12px; color:var(--ok); display:none }
+
+    .milestone-msg{ margin-top:8px; color:var(--muted); font-weight:600; }
+
+    .mini-cards{ margin-top:16px; display:grid; grid-template-columns: repeat(3,1fr); gap:10px; }
+    @media(max-width:920px){ .mini-cards{ grid-template-columns:1fr 1fr; } }
+    .mini-card{ background: var(--card); border:1px solid #1b2335; border-radius:14px; padding:12px; }
+    .mini-card .name{ font-weight:700; font-size:13px; }
+    .mini-card .t{ font-size:11px; color:var(--muted); }
+
+    canvas#confetti{ position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+
+    .qr{ display:flex; align-items:center; gap:10px; }
+    .qr img{ width:120px; height:120px; border-radius:12px; border:1px solid #1c2230; }
+
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="couple-photo">
-                <img src="couple-photo.png.png" alt="Andrew & Tara" class="couple-image">
-            </div>
-            <h1 class="title">Countdown to Our Reunion</h1>
-            <div class="couple-names">
-                <span class="name">Andrew</span>
-                <span class="heart">💕</span>
-                <span class="name">Tara</span>
-            </div>
-            <p class="subtitle">Calgary → London, Ontario</p>
-        </div>
-
-        <div class="countdown-container">
-            <div class="countdown-title">Time Until We're Together Again</div>
-            <div class="countdown" id="countdown">
-                <div class="time-unit">
-                    <span class="number" id="days">00</span>
-                    <span class="label">Days</span>
-                </div>
-                <div class="time-unit">
-                    <span class="number" id="hours">00</span>
-                    <span class="label">Hours</span>
-                </div>
-                <div class="time-unit">
-                    <span class="number" id="minutes">00</span>
-                    <span class="label">Minutes</span>
-                </div>
-                <div class="time-unit">
-                    <span class="number" id="seconds">00</span>
-                    <span class="label">Seconds</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="reunion-info">
-            <div class="info-card">
-                <h3>✈️ Departure</h3>
-                <p>Andrew flying from Calgary</p>
-            </div>
-            <div class="info-card">
-                <h3>🏠 Arrival</h3>
-                <p>Landing in London, Ontario</p>
-            </div>
-            <div class="info-card">
-                <h3>📅 Date</h3>
-                <p id="current-date">Saturday, October 4th, 2025</p>
-            </div>
-        </div>
-
-
-        <div class="romantic-message">
-            <p>"Distance means nothing when someone means everything"</p>
-        </div>
-
-        <!-- Photo Slideshow Section -->
-        <div class="slideshow-container">
-            <h2>Our Memories</h2>
-            <div class="slideshow-wrapper">
-                <div class="slide active" id="slide-0">
-                    <img src="assets/IMG_8308.JPG" alt="Beautiful Memory" class="slide-image">
-                    <video class="slide-video" muted loop style="display: none;">
-                        <source src="assets/placeholder1.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <div class="slide-caption">Beautiful moments together</div>
-                </div>
-                <div class="slide" id="slide-1">
-                    <img src="assets/IMG_7091.PNG" alt="Special Memory" class="slide-image">
-                    <video class="slide-video" muted loop style="display: none;">
-                        <source src="assets/placeholder2.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <div class="slide-caption">Special memories we've shared</div>
-                </div>
-                <div class="slide" id="slide-2">
-                    <img src="assets/IMG_7142.PNG" alt="Precious Memory" class="slide-image">
-                    <video class="slide-video" muted loop style="display: none;">
-                        <source src="assets/placeholder3.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <div class="slide-caption">Precious moments we treasure</div>
-                </div>
-                <div class="slide" id="slide-3">
-                    <img src="assets/IMG_7166.PNG" alt="Sweet Memory" class="slide-image">
-                    <video class="slide-video" muted loop style="display: none;">
-                        <source src="assets/placeholder1.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <div class="slide-caption">Sweet memories of us</div>
-                </div>
-                <div class="slide" id="slide-4">
-                    <img src="assets/IMG_7962.PNG" alt="Loving Memory" class="slide-image">
-                    <video class="slide-video" muted loop style="display: none;">
-                        <source src="assets/placeholder2.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <div class="slide-caption">Loving moments captured</div>
-                </div>
-                <div class="slide" id="slide-5">
-                    <img src="assets/IMG_7964.PNG" alt="Cherished Memory" class="slide-image">
-                    <video class="slide-video" muted loop style="display: none;">
-                        <source src="assets/placeholder3.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <div class="slide-caption">Cherished times together</div>
-                </div>
-            </div>
-            
-            <!-- Navigation dots -->
-            <div class="slideshow-dots">
-                <span class="dot active" onclick="currentSlide(1)"></span>
-                <span class="dot" onclick="currentSlide(2)"></span>
-                <span class="dot" onclick="currentSlide(3)"></span>
-                <span class="dot" onclick="currentSlide(4)"></span>
-                <span class="dot" onclick="currentSlide(5)"></span>
-                <span class="dot" onclick="currentSlide(6)"></span>
-            </div>
-            
-            <!-- Navigation arrows -->
-            <button class="slideshow-prev" onclick="changeSlide(-1)">❮</button>
-            <button class="slideshow-next" onclick="changeSlide(1)">❯</button>
-        </div>
-
-        <div class="floating-hearts">
-            <div class="heart">💖</div>
-            <div class="heart">💕</div>
-            <div class="heart">💗</div>
-            <div class="heart">💝</div>
-            <div class="heart">💘</div>
-        </div>
+  <div class="shell">
+    <div class="nav">
+      <div class="brand"><span class="brand-badge"></span> Countdown</div>
+      <div class="controls">
+        <select id="themeSelect" title="Theme">
+          <option value="">Calgary Night</option>
+          <option value="LondonFog">London Fog</option>
+          
+        </select>
+        <button id="addBtn" class="ghost" title="Add / update event">＋ Event</button>
+        <button id="resetBtn" class="ghost" title="Reset to default">Reset</button>
+      </div>
     </div>
 
-    <script src="script.js"></script>
+    <div class="layout">
+      <!-- Left: live countdown -->
+      <section class="card timer-card">
+        <div class="hero" id="hero">
+          <img id="heroImg" alt="" hidden>
+          <div class="hero-empty" id="heroEmpty">Add a photo (drag & drop)</div>
+          <div class="hero-actions">
+            <button class="ghost" id="photoRemove" title="Remove photo">Remove</button>
+            </div>
+            </div>
+        <div class="headline">
+          <h1 id="eventTitle">Next Milestone</h1>
+          <div class="subtle" id="eventDateLabel">—</div>
+        </div>
+
+        <div class="digits" id="digits" aria-live="polite" aria-atomic="true">
+          <div class="unit"><div class="num" id="w" hidden>0</div><div class="label" id="wLbl" hidden>Weeks</div></div>
+          <div class="unit"><div class="num" id="d">0</div><div class="label">Days</div></div>
+          <div class="unit"><div class="num" id="h">00</div><div class="label">Hours</div></div>
+          <div class="unit"><div class="num" id="m">00</div><div class="label">Minutes</div></div>
+          <div class="unit"><div class="num" id="s">00</div><div class="label">Seconds</div></div>
+          <div class="unit"><div class="num" id="ms" hidden>000</div><div class="label" id="msLbl" hidden>Milliseconds</div></div>
+                </div>
+
+        <div class="progress-wrap">
+          <div class="progress"><span id="bar"></span></div>
+          <div class="progress-meta"><span id="fromLabel">—</span><span id="toLabel">—</span></div>
+          <div class="milestone-msg" id="milestoneMsg"></div>
+                </div>
+
+        <div class="footer">Quick tips: press <span class="kbd">E</span> to edit, <span class="kbd">T</span> to switch theme.</div>
+      </section>
+
+      <!-- Right: manage events -->
+      <aside class="card side-card">
+        <h2>Saved events</h2>
+        <div class="grid" id="eventsList">
+          <div class="empty">No events yet. Add one →</div>
+                </div>
+
+        <h2 style="margin-top:16px">New / Update</h2>
+        <div class="controls-grid">
+          <input id="nameInput" type="text" placeholder="Event name (e.g., London Trip)" />
+          <div class="two">
+            <input id="dateInput" type="date" />
+            <input id="timeInput" type="time" />
+                </div>
+          <div class="two">
+            <input id="emojiInput" type="text" placeholder="Emoji (e.g., ✈️)" maxlength="3" />
+            <input id="tzInput" type="text" placeholder="Event time zone (e.g., Europe/London)" />
+            </div>
+          <button id="saveBtn" class="primary">Save & Set Active</button>
+        </div>
+
+        <h2 style="margin-top:16px">Photo</h2>
+        <div class="grid">
+          <input id="photoUrl" type="text" placeholder="Paste image URL (https://...)" />
+          <div class="row">
+            <input id="photoFile" type="file" accept="image/*" />
+            <button id="photoUseUrl" class="ghost">Use URL</button>
+            </div>
+          <div class="row">
+            <button id="galleryPrev" class="ghost">Prev</button>
+            <button id="galleryNext" class="ghost">Next</button>
+            <button id="galleryAuto" class="ghost">Auto</button>
+            </div>
+        </div>
+
+        <h2 style="margin-top:16px">Spotify</h2>
+        <div class="grid spotify">
+          <input id="spotifyUrl" type="text" placeholder="Spotify track/playlist URL" />
+          <button id="spotifySet" class="ghost">Embed</button>
+          <div id="spotifyEmbed"></div>
+        </div>
+
+        <h2 style="margin-top:16px">Customization</h2>
+        <div class="two">
+          <label class="row" style="align-items:center; gap:8px;">Accent 1 <input id="accent1" type="color" value="#6ae3ff" /></label>
+          <label class="row" style="align-items:center; gap:8px;">Accent 2 <input id="accent2" type="color" value="#ff6a95" /></label>
+        </div>
+        <div class="two">
+          <label><input type="checkbox" id="showWeeks"> Show weeks</label>
+          <label><input type="checkbox" id="showMs"> Show milliseconds</label>
+        </div>
+
+        <h2 style="margin-top:16px">Notifications</h2>
+        <div class="grid">
+          <button id="enableNotifs" class="ghost">Enable reminders (7d/1d/1h)</button>
+          <div class="mini">Notifications fire while the tab is open.</div>
+        </div>
+
+        <h2 style="margin-top:16px">Share</h2>
+        <div class="grid">
+          <input id="shareLink" type="text" readonly />
+          <div class="qr"><img id="qrImg" alt="QR" /><button id="copyLink" class="ghost">Copy</button></div>
+          <div class="mini">Link encodes name, time, time zone & emoji.</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // ===== Utility =====
+    const $ = (sel) => document.querySelector(sel);
+    const fmt = (n) => String(n).padStart(2, '0');
+    const storageKey = 'andrew.countdown.events.v2';
+    const activeKey = 'andrew.countdown.activeId.v2';
+    const heroKey = 'andrew.countdown.hero.v1';
+    const galleryKey = 'andrew.countdown.gallery.v1';
+    const settingsKey = 'andrew.countdown.settings.v1';
+    const spotifyKey = 'andrew.countdown.spotify.v1';
+
+    const defaultEvent = () => ({ id: crypto.randomUUID(), name: 'Next Visit', icon: '📍', tz: Intl.DateTimeFormat().resolvedOptions().timeZone, dateISO: '2025-10-03T18:00:00', createdAt: Date.now(), fromISO: new Date().toISOString() });
+
+    function loadEvents(){
+      try{ return JSON.parse(localStorage.getItem(storageKey)) ?? []; } catch{ return []; }
+    }
+    function saveEvents(list){ localStorage.setItem(storageKey, JSON.stringify(list)); }
+    function getActiveId(){ return localStorage.getItem(activeKey); }
+    function setActiveId(id){ localStorage.setItem(activeKey, id); }
+
+    function upsertEvent(obj){
+      const list = loadEvents();
+      const index = list.findIndex(e => e.id === obj.id);
+      if(index >= 0) list[index] = obj; else list.push(obj);
+      saveEvents(list);
+      setActiveId(obj.id);
+      renderEvents();
+      setActive(obj.id);
+    }
+
+    // ===== Rendering =====
+    function renderEvents(){
+      const list = loadEvents().sort((a,b) => new Date(a.dateISO) - new Date(b.dateISO));
+      const wrap = $('#eventsList');
+      wrap.innerHTML = '';
+      if(list.length === 0){ wrap.innerHTML = '<div class="empty">No events yet. Add one →</div>'; return; }
+
+      for(const e of list){
+        const el = document.createElement('div');
+        el.className = 'event-pill';
+        el.innerHTML = `
+          <div>
+            <div class="name">${(e.icon||'')} ${e.name}</div>
+            <div class="date">${new Date(e.dateISO).toLocaleString([], { dateStyle:'medium', timeStyle:'short' })}</div>
+          </div>
+          <div class="actions">
+            <button data-id="${e.id}" class="ghost set">Set</button>
+            <button data-id="${e.id}" class="ghost edit">Edit</button>
+            <button data-id="${e.id}" class="ghost del" title="Delete">✕</button>
+          </div>
+        `;
+        wrap.appendChild(el);
+      }
+
+      wrap.querySelectorAll('button.set').forEach(btn => btn.addEventListener('click', () => setActive(btn.dataset.id)));
+      wrap.querySelectorAll('button.edit').forEach(btn => btn.addEventListener('click', () => fillForm(btn.dataset.id)));
+      wrap.querySelectorAll('button.del').forEach(btn => btn.addEventListener('click', () => delEvent(btn.dataset.id)));
+    }
+
+    function delEvent(id){
+      if(!confirm('Delete this event?')) return;
+      const list = loadEvents().filter(e => e.id !== id);
+      saveEvents(list);
+      if(getActiveId() === id){ localStorage.removeItem(activeKey); }
+      renderEvents();
+      // If nothing selected, pick the next upcoming
+      const upcoming = nextUpcoming();
+      if(upcoming) setActive(upcoming.id); else clearCountdownUI();
+    }
+
+    function fillForm(id){
+      const e = loadEvents().find(x => x.id === id);
+      if(!e) return;
+      $('#nameInput').value = e.name;
+      const dt = new Date(e.dateISO);
+      $('#dateInput').value = dt.toISOString().slice(0,10);
+      $('#timeInput').value = dt.toTimeString().slice(0,5);
+      // keep id on save by stashing in dataset
+      $('#saveBtn').dataset.editId = id;
+      $('#nameInput').focus();
+    }
+
+    function nextUpcoming(){
+      const now = Date.now();
+      return loadEvents().filter(e => new Date(e.dateISO).getTime() > now)
+        .sort((a,b) => new Date(a.dateISO) - new Date(b.dateISO))[0];
+    }
+
+    // ===== Countdown =====
+    let tickHandle = null;
+    let active = null;
+
+    function setActive(id){
+      const e = loadEvents().find(x => x.id === id) || null;
+      if(!e){ clearCountdownUI(); return; }
+      active = e; setActiveId(id);
+      $('#eventTitle').textContent = `${e.icon||''} ${e.name}`.trim();
+      const end = new Date(e.dateISO);
+      $('#eventDateLabel').textContent = fmtDualTime(end, e.tz || Intl.DateTimeFormat().resolvedOptions().timeZone);
+      $('#fromLabel').textContent = new Date(e.fromISO || Date.now()).toLocaleString([], { dateStyle:'medium' });
+      $('#toLabel').textContent = end.toLocaleString([], { dateStyle:'medium' });
+
+      if(tickHandle) clearInterval(tickHandle);
+      tick();
+      tickHandle = setInterval(tick, settings.showMs ? 50 : 1000);
+      updateProgress();
+      scheduleMilestones(end);
+      updateShare(e);
+      renderMiniCards();
+    }
+
+    function clearCountdownUI(){
+      ['#d','#h','#m','#s','#bar','#eventTitle','#eventDateLabel','#fromLabel','#toLabel'].forEach(sel => {
+        const el = $(sel);
+        if(sel === '#bar'){ el.style.width = '0%'; }
+        else if(sel === '#eventTitle'){ el.textContent = 'Next Milestone'; }
+        else { el.textContent = '—'; }
+      });
+      if(tickHandle) clearInterval(tickHandle);
+    }
+
+    function tick(){
+      if(!active) return;
+      const now = new Date();
+      const end = new Date(active.dateISO);
+      let ms = end - now;
+      if(ms < 0) ms = 0;
+      const sec = Math.floor(ms / 1000);
+      const days = Math.floor(sec / 86400);
+      const hours = Math.floor((sec % 86400) / 3600);
+      const minutes = Math.floor((sec % 3600) / 60);
+      const seconds = sec % 60;
+      const weeks = Math.floor(days / 7);
+      const msRem = ms % 1000;
+
+      const showW = settings.showWeeks;
+      const showMs = settings.showMs;
+      $('#w').hidden = $('#wLbl').hidden = !showW;
+      $('#ms').hidden = $('#msLbl').hidden = !showMs;
+
+      if(showW){ $('#w').textContent = weeks; }
+      $('#d').textContent = days;
+      $('#h').textContent = fmt(hours);
+      $('#m').textContent = fmt(minutes);
+      $('#s').textContent = fmt(seconds);
+      if(showMs){ $('#ms').textContent = String(msRem).padStart(3,'0'); }
+
+      const digits = $('#digits');
+      digits.classList.toggle('pulse', ms <= 3600_000 && ms > 0);
+      if(ms === 0){ fireConfetti(); showMilestone('We made it. 🎉'); }
+    }
+
+    function updateProgress(){
+      if(!active) return;
+      const start = new Date(active.fromISO || Date.now());
+      const end = new Date(active.dateISO);
+      const now = new Date();
+      const total = Math.max(1, end - start);
+      const elapsed = Math.min(Math.max(0, now - start), total);
+      const pct = (elapsed / total) * 100;
+      $('#bar').style.width = pct.toFixed(2) + '%';
+      // Milestone messages
+      if(pct >= 90) showMilestone("Final stretch (90%+) ✨");
+      else if(pct >= 75) showMilestone("75% — dialed in.");
+      else if(pct >= 50) showMilestone("Halfway there.");
+      else if(pct >= 25) showMilestone("Quarter done. Keep cruising.");
+      setTimeout(updateProgress, 5_000);
+    }
+
+    // ===== Init & Events =====
+    function ensureSeed(){
+      let list = loadEvents();
+      if(list.length === 0){ list = [defaultEvent()]; saveEvents(list); setActiveId(list[0].id); }
+    }
+
+    function init(){
+      ensureSeed();
+      renderEvents();
+      // settings
+      loadSettings();
+      applyAccent();
+      setActive(getActiveId() || (nextUpcoming() || loadEvents()[0]).id);
+
+      // Save event
+      $('#saveBtn').addEventListener('click', () => {
+        const name = $('#nameInput').value.trim() || 'Untitled Event';
+        const date = $('#dateInput').value;
+        const time = $('#timeInput').value || '00:00';
+        const icon = $('#emojiInput').value.trim();
+        const tz = ($('#tzInput').value.trim()) || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if(!date){ alert('Pick a date'); return; }
+        const iso = toISOInTZ(date, time, tz);
+        const editingId = $('#saveBtn').dataset.editId;
+        const obj = { id: editingId || crypto.randomUUID(), name, icon, tz, dateISO: iso, createdAt: Date.now(), fromISO: new Date().toISOString() };
+        upsertEvent(obj);
+        // clear form state
+        $('#nameInput').value = '';
+        $('#dateInput').value = '';
+        $('#timeInput').value = '';
+        $('#emojiInput').value = '';
+        $('#tzInput').value = '';
+        delete $('#saveBtn').dataset.editId;
+      });
+
+      // Nav controls
+      $('#addBtn').addEventListener('click', () => { $('#nameInput').focus(); });
+      $('#resetBtn').addEventListener('click', () => { if(confirm('Reset all events to default?')){ localStorage.removeItem(storageKey); localStorage.removeItem(activeKey); localStorage.removeItem(heroKey); localStorage.removeItem(galleryKey); localStorage.removeItem(settingsKey); localStorage.removeItem(spotifyKey); location.reload(); } });
+      $('#themeSelect').addEventListener('change', (e) => { document.documentElement.setAttribute('data-theme', e.target.value); });
+
+      // Photo controls
+      loadHero();
+      $('#photoUseUrl').addEventListener('click', () => {
+        const url = $('#photoUrl').value.trim();
+        if(!url) return alert('Paste an image URL');
+        setHero(url, true);
+      });
+      $('#photoFile').addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = () => setHero(reader.result, true);
+        reader.readAsDataURL(file);
+      });
+      $('#photoRemove').addEventListener('click', ()=>{ clearHero(); gallery = []; saveGallery(); });
+
+      // Drag & drop on hero
+      const hero = $('#hero');
+      hero.addEventListener('dragover', (e)=>{ e.preventDefault(); hero.classList.add('drag'); });
+      hero.addEventListener('dragleave', ()=> hero.classList.remove('drag'));
+      hero.addEventListener('drop', (e)=>{
+        e.preventDefault(); hero.classList.remove('drag');
+        const file = e.dataTransfer?.files?.[0];
+        if(file && file.type.startsWith('image/')){
+          const reader = new FileReader();
+          reader.onload = () => setHero(reader.result, true);
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Spotify
+      $('#spotifySet').addEventListener('click', () => {
+        const url = $('#spotifyUrl').value.trim();
+        if(!url) return;
+        const embed = toSpotifyEmbed(url);
+        localStorage.setItem(spotifyKey, embed);
+        renderSpotify();
+      });
+      renderSpotify();
+
+      // Customization
+      $('#accent1').addEventListener('change', (e)=>{ settings.accent1 = e.target.value; saveSettings(); applyAccent(); });
+      $('#accent2').addEventListener('change', (e)=>{ settings.accent2 = e.target.value; saveSettings(); applyAccent(); });
+      $('#showWeeks').addEventListener('change',(e)=>{ settings.showWeeks = e.target.checked; saveSettings(); setActive(getActiveId()); });
+      $('#showMs').addEventListener('change',(e)=>{ settings.showMs = e.target.checked; saveSettings(); if(tickHandle) clearInterval(tickHandle); tickHandle = setInterval(tick, settings.showMs ? 50 : 1000); });
+
+      // Notifications
+      $('#enableNotifs').addEventListener('click', async ()=>{
+        try{
+          const perm = await Notification.requestPermission();
+          if(perm !== 'granted'){ alert('Notifications blocked'); return; }
+          scheduleMilestones(new Date(active.dateISO));
+          toast('Reminders armed.');
+        }catch{}
+      });
+
+      // Share controls
+      $('#copyLink').addEventListener('click', ()=>{ navigator.clipboard.writeText($('#shareLink').value); toast('Link copied'); });
+
+      // Gallery nav
+      $('#galleryPrev').addEventListener('click', ()=> stepGallery(-1));
+      $('#galleryNext').addEventListener('click', ()=> stepGallery(1));
+      $('#galleryAuto').addEventListener('click', toggleAuto);
+
+      // Shortcuts
+      window.addEventListener('keydown', (e) => {
+        if(e.key.toLowerCase() === 'e'){ $('#nameInput').focus(); }
+        if(e.key.toLowerCase() === 't'){
+          const select = $('#themeSelect');
+          const idx = (select.selectedIndex + 1) % select.options.length;
+          select.selectedIndex = idx; select.dispatchEvent(new Event('change'));
+        }
+      });
+
+      // Analytics
+      bumpVisits();
+      renderMiniCards();
+    }
+
+    /* ===== Hero / Gallery ===== */
+    let gallery = [];
+    let galleryIndex = 0;
+    let autoPlay = false; let autoTimer = null;
+
+    function setHero(src, push=false){
+      try{ localStorage.setItem(heroKey, src); }catch{}
+      const img = $('#heroImg'); const empty = $('#heroEmpty');
+      img.src = src; img.hidden = false; empty.style.display = 'none';
+      if(push){ gallery.push(src); saveGallery(); }
+    }
+    function loadHero(){
+      loadGallery();
+      const src = localStorage.getItem(heroKey) || gallery[0];
+      if(src){ setHero(src); } else { clearHero(); }
+    }
+    function clearHero(){
+      localStorage.removeItem(heroKey);
+      const img = $('#heroImg'); const empty = $('#heroEmpty');
+      img.hidden = true; img.removeAttribute('src'); empty.style.display = 'grid';
+    }
+    function saveGallery(){ localStorage.setItem(galleryKey, JSON.stringify(gallery)); }
+    function loadGallery(){ try{ gallery = JSON.parse(localStorage.getItem(galleryKey))||[] }catch{ gallery=[]; } }
+    function stepGallery(dir){ if(!gallery.length) return; galleryIndex = (galleryIndex + dir + gallery.length) % gallery.length; setHero(gallery[galleryIndex]); }
+    function toggleAuto(){ autoPlay = !autoPlay; $('#galleryAuto').textContent = autoPlay ? 'Auto: On' : 'Auto'; if(autoTimer) clearInterval(autoTimer); if(autoPlay){ autoTimer = setInterval(()=> stepGallery(1), 5000); } }
+
+    /* ===== Spotify ===== */
+    function toSpotifyEmbed(url){
+      try{
+        const u = new URL(url);
+        if(u.hostname.includes('spotify')){
+          const parts = u.pathname.split('/').filter(Boolean);
+          const type = parts[0]; const id = parts[1];
+          return `https://open.spotify.com/embed/${type}/${id}`;
+        }
+      }catch{}
+      return '';
+    }
+    function renderSpotify(){
+      const src = localStorage.getItem(spotifyKey);
+      const mount = $('#spotifyEmbed');
+      mount.innerHTML = src ? `<iframe allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" src="${src}"></iframe>` : '<div class="mini">No embed yet.</div>';
+    }
+
+    /* ===== Settings / Accent ===== */
+    let settings = { accent1: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#6ae3ff', accent2: getComputedStyle(document.documentElement).getPropertyValue('--accent-2').trim()||'#ff6a95', showWeeks:false, showMs:false };
+    function loadSettings(){ try{ const s = JSON.parse(localStorage.getItem(settingsKey)); if(s) settings = Object.assign(settings, s); }catch{}
+      $('#accent1').value = settings.accent1; $('#accent2').value = settings.accent2; $('#showWeeks').checked = !!settings.showWeeks; $('#showMs').checked = !!settings.showMs; }
+    function saveSettings(){ localStorage.setItem(settingsKey, JSON.stringify(settings)); }
+    function applyAccent(){ document.documentElement.style.setProperty('--accent', settings.accent1); document.documentElement.style.setProperty('--accent-2', settings.accent2); }
+
+    /* ===== Notifications & Milestones ===== */
+    function scheduleMilestones(end){
+      if(!('Notification' in window) || Notification.permission !== 'granted') return;
+      const plan = [7*864e5, 864e5, 3600e3];
+      const now = Date.now();
+      plan.forEach(delta => {
+        const when = end.getTime() - delta - now;
+        if(when > 0) setTimeout(()=> new Notification('Countdown reminder', { body: `${active.icon||''} ${active.name} in ${delta===7*864e5?'7 days':delta===864e5?'1 day':'1 hour'}` }), when);
+      });
+    }
+    function showMilestone(msg){ $('#milestoneMsg').textContent = msg; }
+
+    /* ===== Share Link + QR ===== */
+    function updateShare(e){
+      const payload = encodeURIComponent(JSON.stringify({ name:e.name, icon:e.icon||'', tz:e.tz||'', iso:e.dateISO }));
+      const link = location.origin + location.pathname + '#'+payload;
+      $('#shareLink').value = link;
+      // Simple QR using a public API
+      $('#qrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(link)}`;
+    }
+
+    /* ===== Mini upcoming cards ===== */
+    function renderMiniCards(){
+      const wrapId = 'miniWrap';
+      let wrap = document.getElementById(wrapId);
+      if(!wrap){ wrap = document.createElement('div'); wrap.id = wrapId; wrap.className = 'mini-cards'; $('.timer-card').appendChild(wrap); }
+      wrap.innerHTML = '';
+      const upcoming = loadEvents().filter(e => new Date(e.dateISO) - Date.now() > 0).sort((a,b)=> new Date(a.dateISO)-new Date(b.dateISO)).slice(0,3);
+      for(const e of upcoming){
+        const end = new Date(e.dateISO);
+        const daysLeft = Math.max(0, Math.floor((end - Date.now())/864e5));
+        const div = document.createElement('div');
+        div.className = 'mini-card';
+        div.innerHTML = `<div class="name">${e.icon||''} ${e.name}</div><div class="t">${fmtDualTime(end, e.tz||Intl.DateTimeFormat().resolvedOptions().timeZone)}</div><div class="t">${daysLeft} days left</div>`;
+        wrap.appendChild(div);
+      }
+    }
+
+    /* ===== Time zone helpers ===== */
+    function tzOffsetMs(tz, y, m, d, hh, mm){
+      const f = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour12:false, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+      const parts = f.formatToParts(new Date(Date.UTC(y,m-1,d,hh,mm)));
+      const get = (t)=> +parts.find(p=>p.type===t).value;
+      const asIf = Date.UTC(get('year'), get('month')-1, get('day'), get('hour'), get('minute'));
+      const utc = Date.UTC(y, m-1, d, hh, mm);
+      return asIf - utc; // positive if tz ahead of UTC
+    }
+    function toISOInTZ(dateStr, timeStr, tz){
+      const [y,m,d] = dateStr.split('-').map(Number);
+      const [hh,mm] = (timeStr||'00:00').split(':').map(Number);
+      const off = tzOffsetMs(tz, y,m,d,hh,mm);
+      const utcMillis = Date.UTC(y,m-1,d,hh,mm) - off;
+      return new Date(utcMillis).toISOString().slice(0,19);
+    }
+    function fmtDualTime(date, tz){
+      const local = date.toLocaleString([], { dateStyle:'medium', timeStyle:'short' });
+      const other = new Intl.DateTimeFormat([], { timeZone: tz, dateStyle:'medium', timeStyle:'short' }).format(date);
+      const tzLabel = tz;
+      return `${local} · ${other} (${tzLabel})`;
+    }
+
+    /* ===== Confetti ===== */
+    function fireConfetti(){
+      const c = document.getElementById('confetti') || (()=>{ const x=document.createElement('canvas'); x.id='confetti'; document.body.appendChild(x); return x; })();
+      const ctx = c.getContext('2d');
+      const resize=()=>{ c.width=innerWidth; c.height=innerHeight; }; resize(); window.addEventListener('resize', resize, { once:true });
+      const pieces = Array.from({length:160},()=>({ x: Math.random()*c.width, y: -20, r: 6+Math.random()*8, vx: -2+Math.random()*4, vy: 2+Math.random()*3, a: Math.random()*Math.PI }));
+      const start = performance.now();
+      function loop(t){
+        ctx.clearRect(0,0,c.width,c.height);
+        for(const p of pieces){ p.x+=p.vx; p.y+=p.vy; p.vy+=0.03; p.a+=0.1; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a); ctx.fillStyle = `hsl(${(p.x+p.y)%360},100%,60%)`; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r); ctx.restore(); }
+        if(t-start < 5000) requestAnimationFrame(loop); else c.remove();
+      }
+      requestAnimationFrame(loop);
+    }
+
+    /* ===== Toast ===== */
+    function toast(msg){ let el = document.getElementById('toast'); if(!el){ el = document.createElement('div'); el.id='toast'; el.className='toast'; $('.side-card').appendChild(el);} el.textContent=msg; el.style.display='block'; setTimeout(()=> el.style.display='none', 1600); }
+
+    /* ===== Analytics ===== */
+    function bumpVisits(){ const key='andrew.countdown.visits.v1'; const n = +localStorage.getItem(key)||0; localStorage.setItem(key, n+1); document.querySelector('.footer').innerHTML = `Visits: ${n+1} · Quick tips: press <span class="kbd">E</span> to edit, <span class="kbd">T</span> to switch theme.`; }
+
+    init();
+  </script>
 </body>
 </html>
