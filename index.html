@@ -265,7 +265,7 @@
     const settingsKey = 'andrew.countdown.settings.v1';
     const spotifyKey = 'andrew.countdown.spotify.v1';
 
-    const defaultEvent = () => ({ id: crypto.randomUUID(), name: 'Next Visit', icon: '📍', tz: Intl.DateTimeFormat().resolvedOptions().timeZone, dateISO: '2025-10-03T18:00:00', createdAt: Date.now(), fromISO: new Date().toISOString() });
+    const defaultEvent = () => ({ id: crypto.randomUUID(), name: 'Next Visit', icon: '📍', tz: Intl.DateTimeFormat().resolvedOptions().timeZone, dateISO: '2025-10-17T18:00:00', createdAt: Date.now(), fromISO: new Date().toISOString() });
 
     function loadEvents(){
       try{ return JSON.parse(localStorage.getItem(storageKey)) ?? []; } catch{ return []; }
